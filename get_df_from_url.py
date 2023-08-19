@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import json
 
 url = 'http://www.koeri.boun.edu.tr/scripts/lst2.asp'
 limit = 500
