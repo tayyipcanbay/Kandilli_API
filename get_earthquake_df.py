@@ -2,8 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-url = 'http://www.koeri.boun.edu.tr/scripts/lst2.asp'
-limit = 500
+default_url = 'http://www.koeri.boun.edu.tr/scripts/lst2.asp'
+default_limit = 500
+default_filter = {
+    "Datetime": {'ASC': True},
+    "Magnitude": {"min": 0, "max": 10},
+}
+
 
 def get_html(_url):
     #Gets html from url
@@ -36,7 +41,25 @@ def get_cols(_rows):
         cols.append(row.split()[0:9])
     return cols
 
-def create_df(_cols):
+def filter_df(_df, _filter):
+    #Filters the dataframe by _filter.
+    #_filter is a dictionary.
+    #_filter = {
+    #    "Datetime": {'ASC': True},
+    #    "Magnitude": {min: 0, max: 10},
+    #}
+    #If _filter is not specified, returns the dataframe without filtering.
+    if _filter is None:
+        return _df
+    #Filter by Datetime
+    if "Datetime" in _filter:
+        _df = _df.sort_values(by=['Datetime'], ascending=_filter['Datetime']['ASC'])
+    #Filter by Magnitude
+    if "Magnitude" in _filter:
+        _df = _df[(_df['ML'] >= _filter['Magnitude']['min']) & (_df['ML'] <= _filter['Magnitude']['max'])]
+    return _df
+
+def create_df(_cols, _filter):
     #Creates a dataframe from columns.
     df = pd.DataFrame(_cols, columns=['Date', 'Time', 'Latitude', 'Longitude', 'Depth', 'MD', 'ML', 'Mw', 'Place'])
     #Replace -.- with None
@@ -55,15 +78,17 @@ def create_df(_cols):
     df['Place'] = df['Place'].str.strip()
     #Reorder columns for better readability.
     df = df[['Datetime', 'Latitude', 'Longitude', 'Depth', 'MD', 'ML', 'Mw', 'Place']]
+    #Filter the dataframe
+    df = filter_df(df, _filter)
     return df
     
-def get_earthquake_df(limit=limit,url=url):
+def get_earthquake_df(_filter=default_filter,_limit=default_limit,_url=default_url):
     #Gets the dataframe from url and returns the dataframe.
     #If limit is not specified, returns the first 500 rows.
     #If url is not specified, returns the first 500 rows from http://www.koeri.boun.edu.tr/scripts/lst2.asp
-    html = get_html(url)
+    html = get_html(_url)
     pre = get_pre(html)
     rows = get_rows(pre)
     cols = get_cols(rows)
-    df =create_df(cols)
-    return df.head(limit)
+    df =create_df(cols,_filter)
+    return df.head(_limit)
