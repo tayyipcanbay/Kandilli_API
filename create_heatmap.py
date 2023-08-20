@@ -2,6 +2,9 @@ import folium
 from folium.plugins import HeatMap
 from get_earthquake_df import get_earthquake_df
 
+# !!!Filter properties should be in frontend and sent by request.
+
+# Create a popup content for each marker.
 def create_popup_content(row):
     return f"""
         <h6>{row['Place']}</h6>
@@ -11,7 +14,7 @@ def create_popup_content(row):
             <div><b>Datetime:</b> {row['Datetime']}</div>
         </div>
     """
-
+# Create a marker for each row.
 def create_marker(row):
     popup_content = create_popup_content(row)
     return folium.Marker(
@@ -20,20 +23,20 @@ def create_marker(row):
         tooltip=row['Place'],
         icon=folium.Icon(color='red', icon='bolt',prefix="fa")
     )
-
-def create_heatmap(limit=50):
-    df = get_earthquake_df(limit)
+# Create a heatmap from earthquake data.
+def create_heatmap(_limit=50):
+    #Get earthquake data.
+    df = get_earthquake_df(filter={"Datetime": {'ASC': True},"Magnitude": {"min": 0, "max": 1},}, limit=_limit)
+    #Create a map object.
     map_obj = folium.Map(location=[39, 35], zoom_start=6)
-    
+    #Create a list of latitudes, longitudes and magnitudes. Magnitude is divided by 8 to make it more scalable. 
+    #Otherwise, the heatmap would be too red. But this is not a good solution.
     lats_longs = [[row['Latitude'], row['Longitude'], row['ML'] / 8] for _, row in df.iterrows()]
-    
+    #Create a list of markers.
     markers = [create_marker(row) for _, row in df.iterrows()]
-    
+    #Add markers and heatmap to map object.
     for marker in markers:
         marker.add_to(map_obj)
-    
     HeatMap(lats_longs).add_to(map_obj)
-    
+    #Save the map object as html. 
     map_obj.save('heatmap.html')
-
-create_heatmap()

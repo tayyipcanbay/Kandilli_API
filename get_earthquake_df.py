@@ -9,7 +9,6 @@ default_filter = {
     "Magnitude": {"min": 0, "max": 10},
 }
 
-
 def get_html(_url):
     #Gets html from url
     try:
@@ -82,13 +81,17 @@ def create_df(_cols, _filter):
     df = filter_df(df, _filter)
     return df
     
-def get_earthquake_df(_filter=default_filter,_limit=default_limit,_url=default_url):
+def get_earthquake_df(filter=default_filter,limit=default_limit,url=default_url):
     #Gets the dataframe from url and returns the dataframe.
     #If limit is not specified, returns the first 500 rows.
     #If url is not specified, returns the first 500 rows from http://www.koeri.boun.edu.tr/scripts/lst2.asp
-    html = get_html(_url)
+    html = get_html(url)
     pre = get_pre(html)
     rows = get_rows(pre)
     cols = get_cols(rows)
-    df =create_df(cols,_filter)
-    return df.head(_limit)
+    df =create_df(cols,filter)
+    return df.head(limit)
+
+if __name__ == "__main__":
+    df = get_earthquake_df(filter={"Magnitude": {"min": 0, "max": 1}})
+    print(df)
