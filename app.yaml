@@ -1,0 +1,4 @@
+runtime: python39  # Kullanmak istediğiniz Python sürümüne göre değiştirin
+entrypoint: gunicorn -b :$PORT main:app  # main.py dosyasındaki app nesnesini kullanıyorsa
+env_variables:
+    FLASK_ENV: production

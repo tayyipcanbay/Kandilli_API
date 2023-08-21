@@ -24,9 +24,9 @@ def create_marker(row):
         icon=folium.Icon(color='red', icon='bolt',prefix="fa")
     )
 # Create a heatmap from earthquake data.
-def create_heatmap(_limit=50):
+def create_heatmap(_limit=50, _filter=None, _url='http://www.koeri.boun.edu.tr/scripts/lst2.asp'):
     #Get earthquake data.
-    df = get_earthquake_df(filter={"Datetime": {'ASC': True},"Magnitude": {"min": 0, "max": 1},}, limit=_limit)
+    df = get_earthquake_df(filter=_filter, limit=_limit,url=_url)
     #Create a map object.
     map_obj = folium.Map(location=[39, 35], zoom_start=6)
     #Create a list of latitudes, longitudes and magnitudes. Magnitude is divided by 8 to make it more scalable. 
@@ -39,4 +39,4 @@ def create_heatmap(_limit=50):
         marker.add_to(map_obj)
     HeatMap(lats_longs).add_to(map_obj)
     #Save the map object as html. 
-    map_obj.save('heatmap.html')
+    return map_obj.get_root().render()

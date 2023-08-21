@@ -91,7 +91,3 @@ def get_earthquake_df(filter=default_filter,limit=default_limit,url=default_url)
     cols = get_cols(rows)
     df =create_df(cols,filter)
     return df.head(limit)
-
-if __name__ == "__main__":
-    df = get_earthquake_df(filter={"Magnitude": {"min": 0, "max": 1}})
-    print(df)
