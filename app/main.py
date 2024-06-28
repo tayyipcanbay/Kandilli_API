@@ -50,4 +50,4 @@ def heatmap():
 
     return create_heatmap(_filter=filter,_limit=limit,_url=url)
 
-app.run(debug=False, port=5000)
+app.run()
